@@ -1,0 +1,23 @@
+C# WPF ile Masaürtü To-Do List Projesi
+Katmanlı mimarı (N-Tire) kullanılarak bu proje geliştirilmiştir. Bu projenin amacı; Object Oriented Progralama yaparken uyulması gereken kuralları kapsayan SOLID prensiplerine uygun bir şekilde, katmanlı mimari kullanılarak projeye dinamiklik-esneklik kazandırma, daha sonra yapılacak değişikliklerden ortaya çıkacak maliyetleri azaltmak, bir yerde yapılacak bir değişikliğin başka yerleri etkilemesini önlemek ve projede oluşturulan modüllerin başka projelerde tekrardan kullanılabilmesini sağlamaktır.
+İstenildiği taktirde projenin modülleri alınıp web projesi haline getirilebilir durumdadır.
+Not: SOLID’in İnterface segregation kuralına uyularak, bağımlılıkları azaltmak amacıyla İnterface bazlı geliştirilmiştir.
+
+Bu proje Entity Framework / Code-First olarak geliştirilmiştir. 
+
+Projede bulunan Modeller:
+ 1-User (Kullanıcı)
+ 2-User Role (Kullanıcı Rolü)
+ 3-Board (Yapılacaklar Tahtası)
+ 4-Task (Görevler-Yapılacaklar)
+ 5-Status (Görevin Durumu)
+
+ User Role modelinin oluşturulma amacı: ileriki zamanlarda ihtiyaç olabilecek, farklı farklı rollere sahip kullanıcıların bulunabilmesidir. Örneğin; bir belirli kullanıcıların “admin” rolüne,  belirli kullanıcıların da “standart” rolüne sahip olması gibi.
+ 
+ Status modelinin oluşturulma amacı: ileriki zamanlarda ihtiyaç olabilecek, farklı durumlara sahip görevlerin bulunabilmesidir. Örneğin; bir görev yapıldığı anda “yapılıyor”, görev tamamlandığı anda da “tamamlandı” şeklinde olabilir. 
+
+ Genel olarak projenin çalışma mantığı şu şekildedir: Sisteme kayıt olup giriş yapabilecek kullanıcı bulunur. Kullanıcının birden fazla “Yapılacaklar Listesi (To-Do List)” olabilir ve istenildiği taktirde bu listeler silinebilir durumdadır. Var olan bir “Yapılacaklar Listesi” bir veya birden çok “Görev/Yapılacak” e sahip olabilmektedir ve istenildiği taktirde seçilen bir görev silinebilir, görevin durumu değiştirilebilir durumdadır. 
+
+Projenin eksik kısımları: 
+ 1-Farklı katmanların haberleşmesini sağlamak amacıyla interface’ler kullanılmıştır. Fakat singleton deseninin sağlanabilmesi için IOC geliştirmesi olan Ninject kullanılamamıştır (meydana gelen hatalar ve yetiştirilemediğinden dolayı).
+ 2-Görev sıralama ve filtreleme özellikleri yapılamamıştır (yetiştirilemediğinden dolayı).
