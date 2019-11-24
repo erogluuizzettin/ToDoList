@@ -10,6 +10,6 @@ namespace ToDoList.BLL.Abstract
     {
         void Delete(List<Task> tasks);
         List<Task> GetTasksByBoardID(int boardID);
-        void TaskFinish(Task task);
+        List<Task> GetTasksByUser(User user);
     }
 }

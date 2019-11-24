@@ -9,6 +9,6 @@ namespace ToDoList.BLL.Abstract
 {
     public interface IStatusService : IBaseService<Status>
     {
-
+        Status GetStatusByName(string statusName);
     }
 }

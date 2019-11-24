@@ -60,6 +60,7 @@ namespace ToDoList.BLL.Concrete
         public bool Insert(User model)
         {
             CheckNullFields(model);
+            CheckMailAvailable(model.EMail);
             AllControl(model.EMail, model.Password, model.FirstName, model.LastName);
             model.UserRoleID = 2;
             return _userDAL.Add(model) > 0;
@@ -79,7 +80,14 @@ namespace ToDoList.BLL.Concrete
             CheckPasswordMinLength(password);
             CheckPasswordMaxLength(password);
             CheckPasswordThreeLetter(password);
-            return _userDAL.Get(a => a.EMail == email && a.Password == password);
+            try
+            {
+                return _userDAL.Get(a => a.EMail == email && a.Password == password);
+            }
+            catch (Exception)
+            {
+                throw new ModelAvailableException("User");
+            }
         }
 
 
@@ -109,7 +117,6 @@ namespace ToDoList.BLL.Concrete
         void AllControl(string email, string password, string firstName, string lastName)
         {
             CheckMailFormat(email);
-            CheckMailAvailable(email);
             CheckPasswordMinLength(password);
             CheckPasswordThreeLetter(password);
             CheckFirstNameMaxLength(firstName);
@@ -233,6 +240,42 @@ namespace ToDoList.BLL.Concrete
             if (!flag)
             {
                 throw new ModelAvailableException("User");
+            }
+        }
+
+        public User GetUserByActivationCode(string activationCode)
+        {
+            try
+            {
+                return _userDAL.Get(a => a.ActivationCode == activationCode);
+            }
+            catch
+            {
+                throw new Exception("Activation Code incorrect");
+            }
+        }
+
+        public bool GetUserByIsActive(User user)
+        {
+            try
+            {
+                User currentUSer = _userDAL.Get(a => a.ID == user.ID);
+                return currentUSer.IsActive;
+            }
+            catch
+            {
+                throw new ModelAvailableException("User");
+            }
+        }
+
+        public void DeleteUsersInActive()
+        {
+            foreach (User item in GetAll())
+            {
+                if (!GetUserByIsActive(item))
+                {
+                    Delete(item.ID);
+                }
             }
         }
     }

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ToDoList.UI.WPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="550" Width="1000" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
+        Title="To-Do List Login Page" Height="550" Width="1000" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
     <Grid>
         <Grid.Background>
             <ImageBrush ImageSource="Images/bg.png"/>
@@ -47,18 +47,20 @@
                             <RowDefinition Height="32*"/>
                         </Grid.RowDefinitions>
                         <Image HorizontalAlignment="Center" Grid.RowSpan="1" Grid.Column="2" VerticalAlignment="Stretch" Source="Images/user.png" Margin="10,0,146,0"/>
-                        <Label Content="EMail：" Foreground="White" Grid.Column="0" Grid.Row="1" FontSize="23" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Margin="-10,0,33,0"></Label>
+                        <Label Content="EMail：" Foreground="White" Grid.Column="0" Grid.Row="1" FontSize="23" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Margin="-15,0,38,0"></Label>
                         <TextBox x:Name="txtLoginEMail" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" FontSize="23" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="#FF4084C3" BorderBrush="{x:Null}"/>
                         <Label Content="Password：" Foreground="White" Grid.Column="0" Grid.Row="2" FontSize="23" HorizontalContentAlignment="Right" VerticalContentAlignment="Center"></Label>
                         <PasswordBox x:Name="pwdLoginPassword" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" FontSize="23" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="#FF4084C3" Padding="0" SelectionOpacity="0" BorderBrush="{x:Null}"/>
                         <Button x:Name="btnGoToRegister" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Content="Register" FontSize="23" Foreground="White" Width="150" Height="35" HorizontalAlignment="Center" VerticalAlignment="Center" Background="DarkCyan" Click="BtnGoToRegister_Click" Margin="0,19,180,0"/>
                         <Button x:Name="btnLogin" Click="BtnLogin_Click" Content="Login" FontSize="23" Foreground="White" Grid.Row="3" Grid.Column="2" Width="150" Height="35" HorizontalAlignment="Center" VerticalAlignment="Center" Background="#0085FE" Margin="76,19,0,0"/>
                         <CheckBox x:Name="chkRemember" Content="Remember Me" FontSize="12" HorizontalAlignment="Left" Margin="6,22,0,0" Grid.Row="3" Grid.Column="0" VerticalAlignment="Top" Height="28" Width="109"/>
+                        <Label x:Name="lblActivation" Content="Activation Code : " Visibility="Hidden" HorizontalAlignment="Left" Margin="0,32,0,0" VerticalAlignment="Top" Height="35" FontSize="15" Foreground="White"/>
+                        <TextBox x:Name="txtActivationCode" Visibility="Hidden" Grid.ColumnSpan="2" HorizontalAlignment="Left" Height="23" Margin="1,39,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="331" Grid.Column="1"/>
                     </Grid>
                 </Border>
             </Grid>
 
-            <Grid x:Name="gRegistered" Visibility="Hidden" Grid.Column="1" Grid.Row="1" Grid.RowSpan="3" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid x:Name="gRegistered" Visibility="Hidden" Grid.Column="1" Grid.Row="1" Grid.RowSpan="3" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Loaded="GRegistered_Loaded">
                 <Border BorderBrush="Blue" Opacity="0.4" Background="#FF17547C">
                 </Border>
                 <Border Background="BlueViolet" Opacity="0.8" Visibility="Visible" Margin="20" BorderBrush="#FF002EFF">

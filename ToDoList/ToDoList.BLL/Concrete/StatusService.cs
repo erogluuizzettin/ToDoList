@@ -55,6 +55,18 @@ namespace ToDoList.BLL.Concrete
             }
         }
 
+        public Status GetStatusByName(string statusName)
+        {
+            try
+            {
+                return _statusDAL.Get(a => a.Name == statusName);
+            }
+            catch
+            {
+                throw new ModelAvailableException("Status");
+            }
+        }
+
         public bool Insert(Status model)
         {
             CheckMaxLengthName(model.Name);

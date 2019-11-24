@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ToDoList.UI.WPF"
         mc:Ignorable="d"
-        Title="AddTaskWindow" Height="450" Width="800" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
+        Title="Add New Task Page" Height="550" Width="800" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="250"/>
@@ -14,23 +14,26 @@
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition/>
-            <RowDefinition/>
+            <RowDefinition Height="200"/>
             <RowDefinition/>
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Label x:Name="lblTaskList" Grid.Column="0" Grid.Row="0" FontSize="25" Content="Select Task List : " Width="230" Height="44" HorizontalAlignment="Left" Margin="10,9,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="lblTaskList" Grid.Column="0" Grid.Row="0" FontSize="25" Content="Select Task List : " Width="230" Height="44" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
         <ComboBox x:Name="cmbTaskList" SelectionChanged="CmbTaskList_SelectionChanged" ItemsSource="{Binding}" SelectedValuePath="ID" DisplayMemberPath="Name" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" Margin="25,10,0,0" VerticalAlignment="Top" Width="500" Height="43" FontSize="25"/>
 
-        <Label x:Name="lblTitle" Grid.Column="0" Grid.Row="1" FontSize="25" Content="Title : " Width="230" Height="44" HorizontalAlignment="Left" Margin="10,16,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="txtTitle" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Height="44" Margin="25,16,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="500" FontSize="25"/>
+        <Label x:Name="lblTitle" Grid.Column="0" Grid.Row="1" FontSize="25" Content="Title : " Width="230" Height="44" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="txtTitle" MaxLength="50" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Height="44" Margin="25,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="500" FontSize="23"/>
         <Label x:Name="lblDescription" FontSize="25" Grid.Column="0" Content="Description : " HorizontalAlignment="Left" Margin="10,16,0,0" Grid.Row="2" VerticalAlignment="Top" Width="230" Height="44"/>
-        <TextBox x:Name="txtDescription" FontSize="25" Grid.Column="1" HorizontalAlignment="Left" Height="44" Margin="25,16,0,0" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Top" Width="500"/>
-        <Label x:Name="lblStartTime" FontSize="25" Width="230" Height="44" Grid.Column="0" Content="Start Time : " HorizontalAlignment="Left" Margin="10,16,0,0" Grid.Row="3" VerticalAlignment="Top"/>
-        <DatePicker x:Name="dtpStartTime" Grid.Column="1" HorizontalAlignment="Left" Margin="25,16,0,0" Grid.Row="3" VerticalAlignment="Top" Height="44" Width="500"/>
-        <Label x:Name="lblDeadLine" FontSize="25" Width="230" Height="44" Grid.Column="0" Content="Finish Time : " HorizontalAlignment="Left" Margin="10,16,0,0" Grid.Row="4" VerticalAlignment="Top"/>
-        <DatePicker x:Name="dtpDeadLine" Grid.Column="1" HorizontalAlignment="Left" Margin="25,16,0,0" Grid.Row="4" VerticalAlignment="Top" Height="44" Width="500"/>
-        <Button x:Name="btnAdd" FontSize="25" Content="Add Task" Grid.Column="1" HorizontalAlignment="Left" Margin="346,10,0,0" Grid.Row="5" VerticalAlignment="Top" Width="179" Height="51" Click="BtnAdd_Click"/>
+        <TextBox x:Name="txtDescription" MaxLength="500" FontSize="17" Grid.Column="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" TextWrapping="Wrap" HorizontalAlignment="Left" Height="174" Margin="25,16,0,0" Grid.Row="2" VerticalAlignment="Top" Width="500"/>
+        <Label x:Name="lblStartTime" FontSize="25" Width="230" Height="44" Grid.Column="0" Content="Start Time : " HorizontalAlignment="Left" Margin="10,10,0,0" Grid.Row="3" VerticalAlignment="Top"/>
+        <DatePicker x:Name="dtpStartTime" Grid.Column="1" HorizontalAlignment="Left" Margin="25,10,0,0" Grid.Row="3" VerticalAlignment="Top" Height="44" Width="500"/>
+        <Label x:Name="lblDeadLine" FontSize="25" Width="230" Height="44" Grid.Column="0" Content="Finish Time : " HorizontalAlignment="Left" Margin="10,10,0,0" Grid.Row="4" VerticalAlignment="Top"/>
+        <DatePicker x:Name="dtpDeadLine" Grid.Column="1" HorizontalAlignment="Left" Margin="25,10,0,0" Grid.Row="4" VerticalAlignment="Top" Height="44" Width="500"/>
+        <Button x:Name="btnAdd" FontSize="25" Content="Add Task" Grid.Column="1" HorizontalAlignment="Left" Margin="346,10,0,0" Grid.Row="5" VerticalAlignment="Top" Width="179" Height="45" Click="BtnAdd_Click"/>
+        <Label x:Name="lblStatus" Grid.Column="1" HorizontalAlignment="Left" Margin="25,10,0,0" Grid.Row="5" VerticalAlignment="Top" Width="236" Height="45" Visibility="Hidden"/>
+        <RadioButton x:Name="rdbDoing" Checked="RdbDoing_Checked" Content="Doing" Grid.Column="1" HorizontalAlignment="Left" Margin="197,10,0,0" Grid.Row="5" VerticalAlignment="Top" Height="27" Width="90" Visibility="Hidden" GroupName="BoolenStatus"/>
+        <RadioButton x:Name="rdbDone" Content="Done" Checked="RdbDone_Checked" Grid.Column="1" HorizontalAlignment="Left" Margin="197,40,0,0" Grid.Row="5" VerticalAlignment="Top" Height="27" Width="90" Visibility="Hidden" GroupName="BoolenStatus"/>
 
 
     </Grid>

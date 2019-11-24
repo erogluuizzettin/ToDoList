@@ -16,5 +16,6 @@ namespace ToDoList.UI.WPF.Models
         public DateTime StartDate { get; set; }
         public DateTime DeadLine { get; set; }
         public Status Status { get; set; }
+        public Board Board { get; set; }
     }
 }

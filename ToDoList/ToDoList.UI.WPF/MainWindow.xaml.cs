@@ -14,9 +14,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ToDoList.BLL.Abstract;
 using ToDoList.BLL.Concrete;
 using ToDoList.Model;
+using ToDoList.UI.WPF.Helpers;
 using ToDoList.UI.WPF.Models;
+using ToDoList.UI.WPF.Models.Ninject;
 
 namespace ToDoList.UI.WPF
 {
@@ -25,32 +28,65 @@ namespace ToDoList.UI.WPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        UserService _userService;
         LoginModel loginModel;
+        IUserService _userService;
+        IUserRoleService _userRoleService;
+        ITaskService _taskService;
+        IBoardService _boardService;
+        IStatusService _statusService;
+        BoardTaskStatusNinject _currentNinjects;
 
-        public MainWindow()
+
+        public MainWindow(IUserService userService, IUserRoleService userRoleService, ITaskService taskService, IBoardService boardService, IStatusService statusService)
         {
             InitializeComponent();
-            _userService = new UserService();
+            _currentNinjects = new BoardTaskStatusNinject();
+            _currentNinjects.BoardService = boardService;
+            _currentNinjects.TaskService = taskService;
+            _currentNinjects.StatusService = statusService;
+            _userService = userService;
+            _userRoleService = userRoleService;
+            _taskService = taskService;
+            _boardService = boardService;
+            _statusService = statusService;
         }
-
+        
         private void BtnRegister_Click(object sender, RoutedEventArgs e)
         {
             string password = pwdRegisterPassword.Password.ToString();
 
+            Random random = new Random();
             User currentUser = new User();
             currentUser.FirstName = txtRegisterFirstName.Text;
             currentUser.LastName = txtRegisterLastName.Text;
             currentUser.EMail = txtRegisterEMail.Text;
             currentUser.Password = password;
+            currentUser.ActivationCode = random.Next(1001, 9999).ToString();
+            currentUser.IsActive = false;
 
             try
             {
-                _userService.Insert(currentUser);
+                bool result = _userService.Insert(currentUser);
+                if (result)
+                {
+                    result = EMailHelper.SendEMail(currentUser.EMail, currentUser.ActivationCode, currentUser.FirstName, currentUser.LastName);
+                    if (result)
+                    {
+                        MessageBox.Show(string.Format(currentUser.FirstName + " " + currentUser.LastName + "\nCheck your mail inbox for activation code"));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Could not send activation mail");
+                        _userService.Delete(currentUser);
+                        return;
+                    }
+                    lblActivation.Visibility = Visibility.Visible;
+                    txtActivationCode.Visibility = Visibility.Visible;
+                }
+
                 ShowGrid(gLogin);
                 txtLoginEMail.Text = currentUser.EMail;
                 pwdLoginPassword.Password = currentUser.Password;
-                MessageBox.Show("Registration Successful. You are redirected to the login page");
             }
             catch (Exception ex)
             {
@@ -60,6 +96,15 @@ namespace ToDoList.UI.WPF
 
         private void BtnGoToLogin_Click(object sender, RoutedEventArgs e)
         {
+            this.Title = "To-Do List Login Page";
+            if (txtActivationCode.Visibility == Visibility.Visible)
+            {
+                lblActivation.Visibility = Visibility.Hidden;
+                txtActivationCode.Visibility = Visibility.Hidden;
+                txtLoginEMail.Text = "";
+                pwdLoginPassword.Password = "";
+                chkRemember.IsChecked = false;
+            }
             ShowGrid(gLogin);
         }
 
@@ -73,9 +118,44 @@ namespace ToDoList.UI.WPF
             try
             {
                 User currentUser = _userService.GetUserByLogin(loginModel.EMail, loginModel.Password);
-                ToDoListWindow window = new ToDoListWindow(currentUser);
-                window.ShowDialog();
-                this.Close();
+                if (currentUser == null)
+                {
+                    _userService.Delete(currentUser);
+                    return;
+                }
+                else
+                {
+                    if (txtActivationCode.Visibility == Visibility.Visible)
+                    {
+                        if (string.IsNullOrWhiteSpace(txtActivationCode.Text))
+                        {
+                            MessageBox.Show("You did not enter the activation code");
+                            return;
+                        }
+                        User activeUser = _userService.GetUserByActivationCode(txtActivationCode.Text);
+                        if (activeUser == null)
+                        {
+                            MessageBox.Show("Make sure you enter the Activation Code correctly");
+                            return;
+                        }
+                        if (currentUser == activeUser && !currentUser.IsActive)
+                        {
+                            MessageBox.Show("Your membership has been activated");
+                            currentUser.IsActive = true;
+                            _userService.Update(currentUser);
+                            OpenToDoListPage(currentUser);
+                        }
+                        else
+                        {
+
+                            MessageBox.Show("User not found, please register");
+                            ShowGrid(gRegistered);
+                            return;
+                        }
+                    }
+                    DeleteUsersInActive();
+                    OpenToDoListPage(currentUser);
+                }
             }
             catch (Exception ex)
             {
@@ -85,8 +165,21 @@ namespace ToDoList.UI.WPF
             RememberMe();
         }
 
+        void OpenToDoListPage(User currentUser)
+        {
+            ToDoListWindow window = new ToDoListWindow(currentUser, _currentNinjects);
+            window.ShowDialog();
+            this.Close();
+        }
+
         private void BtnGoToRegister_Click(object sender, RoutedEventArgs e)
         {
+            txtRegisterEMail.Text = "";
+            txtRegisterFirstName.Text = "";
+            txtRegisterLastName.Text = "";
+            pwdRegisterPassword.Password = "";
+            this.Title = "To-Do List Register Page";
+            DeleteUsersInActive();
             ShowGrid(gRegistered);
         }
 
@@ -112,7 +205,7 @@ namespace ToDoList.UI.WPF
             }
         }
 
-        
+
         void RememberMe()
         {
             if ((bool)chkRemember.IsChecked)
@@ -129,6 +222,28 @@ namespace ToDoList.UI.WPF
                     File.Delete("ToDoList.psg");
                 }
             }
+        }
+
+        private void GRegistered_Loaded(object sender, RoutedEventArgs e)
+        {
+            DeleteUsersInActive();
+        }
+
+        void DeleteUsersInActive()
+        {
+            try
+            {
+                _userService.DeleteUsersInActive();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            DeleteUsersInActive();
         }
     }
 }

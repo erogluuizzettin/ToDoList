@@ -12,9 +12,11 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using ToDoList.BLL.Abstract;
 using ToDoList.BLL.Concrete;
 using ToDoList.Model;
 using ToDoList.UI.WPF.Models;
+using ToDoList.UI.WPF.Models.Ninject;
 
 namespace ToDoList.UI.WPF
 {
@@ -23,20 +25,24 @@ namespace ToDoList.UI.WPF
     /// </summary>
     public partial class ToDoListWindow : Window
     {
-        TaskService _taskService;
-        BoardService _boardService;
+        ITaskService _taskService;
+        IBoardService _boardService;
+        IStatusService _statusService;
         User _currentUser;
         Board _currentBoardCombobox;
         Board _currentBoardListBox;
         TaskModel _currentTaskModel;
         List<Board> boards;
         List<TaskModel> taskItemSource;
+        BoardTaskStatusNinject _currentNinjects;
 
-        public ToDoListWindow(User user)
+        public ToDoListWindow(User user, BoardTaskStatusNinject ninject)
         {
             InitializeComponent();
-            _taskService = new TaskService();
-            _boardService = new BoardService();
+            _currentNinjects = ninject;
+            _taskService = ninject.TaskService;
+            _boardService = ninject.BoardService;
+            _statusService = ninject.StatusService;
             _currentUser = user;
         }
 
@@ -45,6 +51,7 @@ namespace ToDoList.UI.WPF
             if (txtBoardName.Text == "--Enter Board Name--" || string.IsNullOrWhiteSpace(txtBoardName.Text))
             {
                 MessageBox.Show("Please enter the name of the Task List");
+                txtBoardName.Text = "--Enter Board Name--";
                 return;
             }
             else
@@ -80,14 +87,10 @@ namespace ToDoList.UI.WPF
                 MessageBox.Show("Task cannot be added without Task List");
                 return;
             }
-            AddTaskWindow window = new AddTaskWindow(_currentUser);
+            AddTaskWindow window = new AddTaskWindow(_currentUser, false, null, false, _currentNinjects);
             window.ShowDialog();
-            lstTaskList.SelectedIndex = -1;
-        }
 
-        private void BtnSearch_Click(object sender, RoutedEventArgs e)
-        {
-
+            ShowAllTask();
         }
 
         private void BtnRemoveTaskList_Click(object sender, RoutedEventArgs e)
@@ -96,7 +99,8 @@ namespace ToDoList.UI.WPF
             {
                 MessageBox.Show("Task List not found");
                 return;
-            }else if (cmbBoardList.SelectedIndex == -1)
+            }
+            else if (cmbBoardList.SelectedIndex == -1)
             {
                 MessageBox.Show("Please select an item");
                 return;
@@ -124,12 +128,13 @@ namespace ToDoList.UI.WPF
                 _boardService.Delete(_currentBoardCombobox);
                 MessageBox.Show("Task List deletion is succesfull");
                 cmbBoardList.SelectedIndex = -1;
+                ShowAllTask();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
-            
+
             //refresh
             lstTaskList.ItemsSource = null;
             cmbBoardList.ItemsSource = null;
@@ -140,6 +145,7 @@ namespace ToDoList.UI.WPF
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             BindCombobox();
+            ShowAllTask();
         }
 
         public List<Board> Brd { get; set; }
@@ -173,6 +179,7 @@ namespace ToDoList.UI.WPF
             {
                 TaskModel model = new TaskModel();
                 model.ID = item.ID;
+                model.Board = item.Board;
                 model.Name = item.Name;
                 model.Description = item.Description;
                 model.StartDate = item.StartDate;
@@ -186,7 +193,7 @@ namespace ToDoList.UI.WPF
         private void BtnTaskDelete_Click(object sender, RoutedEventArgs e)
         {
             Task task = SelectionTask();
-            
+
             if (task == null)
             {
                 return;
@@ -222,33 +229,47 @@ namespace ToDoList.UI.WPF
 
             try
             {
-                _taskService.TaskFinish(task);
+                task.Status = _statusService.GetStatusByName("done");
+                _taskService.Update(task);
+                RefreshEditAndFinish(task);
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
+        }
 
+        private void BtnTaskEdit_Click(object sender, RoutedEventArgs e)
+        {
+            Task task = SelectionTask();
+            if (task == null)
+            {
+                return;
+            }
+            AddTaskWindow window = new AddTaskWindow(_currentUser, false, task, true, _currentNinjects);
+            window.ShowDialog();
+
+            RefreshEditAndFinish(task);
+            ShowAllTask();
+        }
+
+        void RefreshEditAndFinish(Task task)
+        {
             TaskModel taskModel = new TaskModel()
             {
-                ID=task.ID,
-                Name=task.Name,
-                Description=task.Description,
-                StartDate=task.StartDate,
-                DeadLine=task.Deadline,
-                Status=task.Status
+                ID = task.ID,
+                Name = task.Name,
+                Board = task.Board,
+                Description = task.Description,
+                StartDate = task.StartDate,
+                DeadLine = task.Deadline,
+                Status = task.Status
             };
 
             //refresh
             taskItemSource.Add(taskModel);
             lstTaskByBoard.ItemsSource = null;
             lstTaskByBoard.ItemsSource = taskItemSource;
-        }
-
-        private void BtnTaskEdit_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("This part is not yet designed, sorry");
-            return;
         }
 
         Task SelectionTask()
@@ -263,12 +284,49 @@ namespace ToDoList.UI.WPF
             }
             else
             {
-                MessageBox.Show("You did not select a Task");
+                MessageBox.Show("Please select a Task");
                 return null;
             }
         }
 
-        private void BtnSearch_Click_1(object sender, RoutedEventArgs e)
+        private void BtnShowAllTask_Click(object sender, RoutedEventArgs e)
+        {
+            ShowAllTask();
+        }
+
+        void ShowAllTask()
+        {
+            lstTaskList.SelectedIndex = -1;
+            List<TaskModel> taskModels = new List<TaskModel>();
+            foreach (Task item in _taskService.GetTasksByUser(_currentUser))
+            {
+                TaskModel model = new TaskModel();
+                model.ID = item.ID;
+                model.Name = item.Name;
+                model.Board = item.Board;
+                model.Description = item.Description;
+                model.StartDate = item.StartDate;
+                model.DeadLine = item.Deadline;
+                model.Status = item.Status;
+                taskModels.Add(model);
+            }
+            lstTaskByBoard.ItemsSource = taskModels;
+        }
+
+        private void BtnTaskDetail_Click(object sender, RoutedEventArgs e)
+        {
+            if (lstTaskByBoard.SelectedIndex == -1)
+            {
+                MessageBox.Show("Please select a Task");
+                return;
+            }
+
+            Task task = SelectionTask();
+            AddTaskWindow window = new AddTaskWindow(_currentUser, true, task, false, _currentNinjects);
+            window.ShowDialog();
+        }
+
+        private void BtnSearch_Click(object sender, RoutedEventArgs e)
         {
             List<TaskModel> tasks;
             SearchWindow window = new SearchWindow(out tasks);

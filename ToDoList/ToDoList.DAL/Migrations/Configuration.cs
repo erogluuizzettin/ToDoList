@@ -26,12 +26,14 @@
             context.UserRoles.AddRange(userRoles);
             context.SaveChanges();
 
+            Random random = new Random();
             context.Users.Add(new User()
             {
                 FirstName = "izzettin",
                 LastName = "eroğlu",
                 EMail = "erogluuizzettin@gmail.com",
                 Password = "Eroglu123",
+                ActivationCode = random.Next(1001, 9999).ToString(),
                 UserRole = userRoles[0]
             });
             context.SaveChanges();

@@ -11,5 +11,6 @@ namespace ToDoList.UI.WPF.Models
     {
         public string EMail { get; set; }
         public string Password { get; set; }
+        public string Activationcode { get; set; }
     }
 }

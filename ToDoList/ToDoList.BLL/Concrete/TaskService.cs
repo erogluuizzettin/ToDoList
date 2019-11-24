@@ -13,10 +13,12 @@ namespace ToDoList.BLL.Concrete
     public class TaskService : ITaskService
     {
         EFTaskDAL _taskDAL;
+        BoardService _boardService;
 
         public TaskService()
         {
             _taskDAL = new EFTaskDAL();
+            _boardService = new BoardService();
         }
 
         public bool Delete(Task model)
@@ -106,7 +108,7 @@ namespace ToDoList.BLL.Concrete
                 throw new NotNullException("Finish Time");
             }
         }
-        
+
         void CheckAvailableTask(int taskID)
         {
             bool flag = false;
@@ -154,10 +156,21 @@ namespace ToDoList.BLL.Concrete
             }
         }
 
-        public void TaskFinish(Task task)
+        public List<Task> GetTasksByUser(User user)
         {
-            task.StatusID = 2;
-            _taskDAL.Update(task);
+            try
+            {
+                List<Task> tasks = new List<Task>();
+                foreach (Board item in _boardService.GetBoardsByUser(user))
+                {
+                    tasks.AddRange(item.Tasks);
+                }
+                return tasks;
+            }
+            catch
+            {
+                throw new EmptyListException("Task");
+            }
         }
     }
 }
