@@ -25,7 +25,7 @@ namespace ToDoList.UI.WPF.Helpers
             SmtpClient client = new SmtpClient();
             client.Host = "smtp.gmail.com";
             client.Port = 587;
-            client.Credentials = new NetworkCredential(from.Address, "5536699447");
+            client.Credentials = new NetworkCredential(from.Address, "+++++++++");
             client.EnableSsl = true;
             
             try
