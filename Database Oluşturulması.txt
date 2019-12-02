@@ -1,4 +1,4 @@
-Database'in backup dosyası arşiv doyasında mevcuttur. İçerisinde
+Database'in backup dosyası arşiv dosyasında mevcuttur. İçerisinde
 birkaç hazır data bulunmaktadır. 
 
 Hazır database kullanılmayacaksa aşağıdaki adımlar uygulanabilir:
@@ -7,3 +7,5 @@ configuration classında veritabanı ayağa kaldırılırken içinde
 bulunacak olan datalar mevcuttur. Bu yüzden DAL katmanı üzerinde
 "Package manager console" konsol kısmında "update-database" yapılması
 yeterli olacaktır ("enable-migrations" komutunu çalıştırmanıza gerek yoktur).
+
+(Güncellemeler yapıldığından dolayı henüz backup dosyası güncellenmemiştir!)
